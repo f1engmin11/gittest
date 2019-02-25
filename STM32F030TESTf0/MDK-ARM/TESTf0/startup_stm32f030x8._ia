@@ -1,0 +1,7 @@
+--cpu Cortex-M0 -g --apcs=interwork --pd "__MICROLIB SETA 1"
+-I C:\Users\Administrator\Desktop\testf0\TESTf0\MDK-ARM\RTE
+-I D:\Keil_v5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include
+-I D:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\2.0.0
+-I D:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\2.0.0\Device\Include
+--pd "__UVISION_VERSION SETA 514" --pd "_RTE_ SETA 1" --pd "STM32F030x8 SETA 1"
+--list startup_stm32f030x8.lst --xref -o testf0\startup_stm32f030x8.o --depend testf0\startup_stm32f030x8.d "startup_stm32f030x8.s"

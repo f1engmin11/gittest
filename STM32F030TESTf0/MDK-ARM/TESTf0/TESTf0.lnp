@@ -1,0 +1,24 @@
+--cpu Cortex-M0
+"testf0\startup_stm32f030x8.o"
+"testf0\main.o"
+"testf0\stm32f0xx_it.o"
+"testf0\stm32f0xx_hal_msp.o"
+"testf0\stm32f0xx_hal_tim.o"
+"testf0\stm32f0xx_hal_tim_ex.o"
+"testf0\stm32f0xx_hal_rcc.o"
+"testf0\stm32f0xx_hal_rcc_ex.o"
+"testf0\stm32f0xx_hal.o"
+"testf0\stm32f0xx_hal_i2c.o"
+"testf0\stm32f0xx_hal_i2c_ex.o"
+"testf0\stm32f0xx_hal_gpio.o"
+"testf0\stm32f0xx_hal_dma.o"
+"testf0\stm32f0xx_hal_cortex.o"
+"testf0\stm32f0xx_hal_pwr.o"
+"testf0\stm32f0xx_hal_pwr_ex.o"
+"testf0\stm32f0xx_hal_flash.o"
+"testf0\stm32f0xx_hal_flash_ex.o"
+"testf0\system_stm32f0xx.o"
+--library_type=microlib --strict --scatter "TESTf0\TESTf0.sct"
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "TESTf0.map" -o TESTf0\TESTf0.axf
