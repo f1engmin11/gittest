@@ -86,6 +86,7 @@ void TaskRemarks(void);
 void TaskProcess(void);
 void LEDTask1(void);
 void LEDTask2(void);
+void InputIOScan(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -101,6 +102,15 @@ static TASK_COMPONENTS TaskComps[] =
     {0, 500, 500, LEDTask1},
     {0, 1000, 1000, LEDTask2},
 };
+
+enum {
+    KEY_INVALID=0,
+    KEY_PRESS_VALID,
+    KEY_LONGPRESS_VALID,
+    KEY_RELEASE,
+    KEY_LONGPRESS_RELEASE
+};
+typedef unsigned char KEY_DEAL_STATE;
 
 /* USER CODE END 0 */
 
@@ -181,6 +191,18 @@ int main(void)
 		}*/
 		//==================================================================3
 		TaskProcess();
+
+/*  key scan
+		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0))
+		{
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
+		}
+		else
+		{
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
+		}			
+*/
+    InputIOScan();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -234,10 +256,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_SET);
+
+  /*Configure GPIO pin : PA0 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PC8 PC9 */
   GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9;
@@ -289,7 +318,7 @@ void TaskProcess(void)
 
     for (i=0; i<TASK_NUM; i++)
     {
-         if (TaskComps[i].Run)
+        if (TaskComps[i].Run)
         {
              TaskComps[i].TaskHook();
              TaskComps[i].Run = 0;
@@ -304,11 +333,11 @@ void LEDTask1(void)
 	{
 		case 0:
 			flag1 = 1;
-			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
+//			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
 			break;
 		case 1:
 			flag1 = 0;
-			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
+//			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
 			break;
 		default:
 			break;
@@ -331,6 +360,101 @@ void LEDTask2(void)
 		default:
 			break;
 	}
+}
+
+
+KEY_DEAL_STATE InputSCanStateM_Ex(unsigned char *pstate, unsigned char *poldvalue, unsigned char curvalue,unsigned int *pTimer,unsigned int maxdelay,unsigned int validtime)
+{
+  KEY_DEAL_STATE ret = KEY_INVALID;
+  unsigned char oldvalue = *poldvalue;
+  switch(*pstate)
+  {
+  case 0:	
+    if(curvalue != oldvalue)
+    {
+      (*pstate)++;
+      (*pTimer) = g_uiSystick;
+    }
+    break;
+  case 1:	
+    if(curvalue!=oldvalue)
+    {
+      if(((g_uiSystick-(*pTimer))>maxdelay))
+      {
+        ret = KEY_PRESS_VALID;
+        (*pstate)++;
+        (*pTimer) = g_uiSystick;
+      }
+    }
+    else
+    {
+      (*pstate) = 0;
+    }
+    break;
+  case 2:
+    if(curvalue!=oldvalue)
+    {
+      if(g_uiSystick-(*pTimer)>validtime)
+      {
+        *poldvalue = curvalue;
+        ret = KEY_LONGPRESS_VALID;
+        (*pstate)++;
+      }
+    }
+    else
+    {
+      (*pstate)=0;
+      ret =KEY_RELEASE;
+    }
+    break;
+  case 3: 
+    if(curvalue!=oldvalue)
+    {
+      *poldvalue=curvalue;
+      (*pstate)=0;
+      ret =KEY_LONGPRESS_RELEASE;
+    }
+    break;
+  default:
+    (*pstate)=0;
+    break;
+  }
+  
+  return ret;
+}
+
+static unsigned char state_keyinc = 0;
+static unsigned char keyinc = 0;
+static unsigned int timer_keyinc = 0;
+void InputIOScan(void)
+{
+  unsigned short temp = 0;
+  unsigned char ret = 0;
+  
+  temp = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0);
+  ret = InputSCanStateM_Ex(&state_keyinc, &keyinc, temp, &timer_keyinc, 20, 2000);//按键消抖20ms，长按时间设为2000ms
+  switch(ret)
+  {
+  case KEY_INVALID:
+    break;
+	
+  case KEY_PRESS_VALID:
+		
+    break;
+	
+  case KEY_LONGPRESS_VALID:
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
+    break;
+	
+  case KEY_RELEASE:
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
+  case KEY_LONGPRESS_RELEASE:
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
+    break;
+	
+  default:
+    break;
+  }
 }
 /* USER CODE END 4 */
 
