@@ -1,5 +1,5 @@
 --cpu Cortex-M0 -g --apcs=interwork --pd "__MICROLIB SETA 1"
--I C:\Users\Administrator\Desktop\testf0\TESTf0\MDK-ARM\RTE
+-I C:\Users\Administrator\Desktop\gittest\STM32F030TESTf0\MDK-ARM\RTE
 -I D:\Keil_v5\ARM\PACK\ARM\CMSIS\4.2.0\CMSIS\Include
 -I D:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\2.0.0
 -I D:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\2.0.0\Device\Include
